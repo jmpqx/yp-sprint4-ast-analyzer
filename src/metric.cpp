@@ -17,7 +17,7 @@
 #include <string>
 #include <variant>
 #include <vector>
-d
+
 #include "function.hpp"
 
 namespace analyzer::metric {
