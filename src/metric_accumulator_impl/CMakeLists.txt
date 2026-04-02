@@ -11,6 +11,7 @@ target_link_libraries(${target}
         GTest::GTest
         GTest::Main
         metric_accumulator
+        metric
         function
         file
 )
