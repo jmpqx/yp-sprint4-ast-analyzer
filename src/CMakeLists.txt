@@ -1,5 +1,3 @@
-
-
 add_library(function
     function.cpp
 )
@@ -42,6 +40,7 @@ target_link_libraries(cmd_options
     PRIVATE
         ${Boost_LIBRARIES}
 )
+
 target_include_directories(cmd_options
     PUBLIC
         ${Boost_INCLUDE_DIRS}

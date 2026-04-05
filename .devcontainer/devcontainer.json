@@ -5,14 +5,11 @@
       "context": "."
   },
   "containerEnv": {
-    "http_proxy": "http://host.docker.internal:10808",
-    "https_proxy": "http://host.docker.internal:10808",
-    "HTTP_PROXY": "http://host.docker.internal:10808",
-    "HTTPS_PROXY": "http://host.docker.internal:10808",
-    "NO_PROXY": "${NO_PROXY}"
+    "HTTP_PROXY": "${localEnv:HTTP_PROXY}",
+    "HTTPS_PROXY": "${localEnv:HTTPS_PROXY}",
+    "NO_PROXY": "${localEnv:NO_PROXY}"
   },
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-  "runArgs": ["--add-host=host.docker.internal:host-gateway"],
   "remoteUser": "dev",
   "initializeCommand": "mkdir -p ~/.conan2",
   "postStartCommand": "conan profile detect || true",

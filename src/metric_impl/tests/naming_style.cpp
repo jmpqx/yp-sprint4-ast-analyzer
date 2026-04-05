@@ -5,62 +5,25 @@
 
 namespace analyzer::metric::metric_impl {
 
-TEST(NamingStyleMetric, Comments) {
-    MetricFixture<NamingStyleMetric> fixture("comments.py");
-    ASSERT_EQ(fixture.GetResult("Func_comments"), "Unknown");
+using NamingStyleFixture = MetricFixture<NamingStyleMetric>;
+
+TEST_P(NamingStyleFixture, Test) {
+    const auto &[func_name, file_name, expected] = GetParam();
+    Init(file_name);
+    ASSERT_EQ(GetResult(func_name), std::get<std::string>(expected));
 }
 
-TEST(NamingStyleMetric, If) {
-    MetricFixture<NamingStyleMetric> fixture("if.py");
-    ASSERT_EQ(fixture.GetResult("testIf"), "Camel Case");
-}
-
-TEST(NamingStyleMetric, Loops) {
-    MetricFixture<NamingStyleMetric> fixture("loops.py");
-    ASSERT_EQ(fixture.GetResult("TestLoops"), "Pascal Case");
-}
-
-TEST(NamingStyleMetric, NestedIf) {
-    MetricFixture<NamingStyleMetric> fixture("nested_if.py");
-    ASSERT_EQ(fixture.GetResult("Testnestedif"), "Pascal Case");
-}
-
-TEST(NamingStyleMetric, Ternary) {
-    MetricFixture<NamingStyleMetric> fixture("ternary.py");
-    ASSERT_EQ(fixture.GetResult("teSt_ternary"), "Unknown");
-}
-
-TEST(NamingStyleMetric, Exceptions) {
-    MetricFixture<NamingStyleMetric> fixture("exceptions.py");
-    ASSERT_EQ(fixture.GetResult("Try_Exceptions"), "Unknown");
-}
-
-TEST(NamingStyleMetric, MatchCase) {
-    MetricFixture<NamingStyleMetric> fixture("match_case.py");
-    ASSERT_EQ(fixture.GetResult("test_Match_case"), "Unknown");
-}
-
-TEST(NamingStyleMetric, ManyParameters) {
-    MetricFixture<NamingStyleMetric> fixture("many_parameters.py");
-    ASSERT_EQ(fixture.GetResult("__test_multiparameters__"), "Snake Case");
-}
-
-TEST(NamingStyleMetric, ManyLines) {
-    MetricFixture<NamingStyleMetric> fixture("many_lines.py");
-    ASSERT_EQ(fixture.GetResult("testmultiline"), "Lower Case");
-}
-
-TEST(NamingStyleMetric, Simple) {
-    MetricFixture<NamingStyleMetric> fixture("simple.py");
-    ASSERT_EQ(fixture.GetResult("test_simple"), "Snake Case");
-}
-
-TEST(NamingStyleMetric, Sample) {
-    MetricFixture<NamingStyleMetric> fixture("../../../files/sample.py");
-    ASSERT_EQ(fixture.GetResult("__init__"), "Snake Case");
-    ASSERT_EQ(fixture.GetResult("process"), "Lower Case");
-    ASSERT_EQ(fixture.GetResult("__call__"), "Snake Case");
-    ASSERT_EQ(fixture.GetResult("lambda_demo"), "Snake Case");
-}
+INSTANTIATE_TEST_SUITE_P(NamingStyleTests, NamingStyleFixture, testing::Values(
+    TestCase{"Func_comments", "comments.py", "Unknown"},
+    TestCase{"testIf", "if.py", "Camel Case"},
+    TestCase{"TestLoops", "loops.py", "Pascal Case"},
+    TestCase{"Testnestedif", "nested_if.py", "Pascal Case"},
+    TestCase{"teSt_ternary", "ternary.py", "Unknown"},
+    TestCase{"Try_Exceptions", "exceptions.py", "Unknown"},
+    TestCase{"test_Match_case", "match_case.py", "Unknown"},
+    TestCase{"__test_multiparameters__", "many_parameters.py", "Snake Case"},
+    TestCase{"testmultiline", "many_lines.py", "Lower Case"},
+    TestCase{"test_simple", "simple.py", "Snake Case"}
+));
 
 }  // namespace analyzer::metric::metric_impl

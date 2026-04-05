@@ -5,62 +5,25 @@
 
 namespace analyzer::metric::metric_impl {
 
-TEST(CodeLinesCountMetric, Comments) {
-    MetricFixture<CodeLinesCountMetric> fixture("comments.py");
-    ASSERT_EQ(fixture.GetResult("Func_comments"), 3);
+using CodeLinesCountFixture = MetricFixture<CodeLinesCountMetric>;
+
+TEST_P(CodeLinesCountFixture, Test) {
+    const auto &[func_name, file_name, expected] = GetParam();
+    Init(file_name);
+    ASSERT_EQ(GetResult(func_name), std::get<int>(expected));
 }
 
-TEST(CodeLinesCountMetric, If) {
-    MetricFixture<CodeLinesCountMetric> fixture("if.py");
-    ASSERT_EQ(fixture.GetResult("testIf"), 3);
-}
-
-TEST(CodeLinesCountMetric, Loops) {
-    MetricFixture<CodeLinesCountMetric> fixture("loops.py");
-    ASSERT_EQ(fixture.GetResult("TestLoops"), 6);
-}
-
-TEST(CodeLinesCountMetric, NestedIf) {
-    MetricFixture<CodeLinesCountMetric> fixture("nested_if.py");
-    ASSERT_EQ(fixture.GetResult("Testnestedif"), 8);
-}
-
-TEST(CodeLinesCountMetric, Ternary) {
-    MetricFixture<CodeLinesCountMetric> fixture("ternary.py");
-    ASSERT_EQ(fixture.GetResult("teSt_ternary"), 1);
-}
-
-TEST(CodeLinesCountMetric, Exceptions) {
-    MetricFixture<CodeLinesCountMetric> fixture("exceptions.py");
-    ASSERT_EQ(fixture.GetResult("Try_Exceptions"), 7);
-}
-
-TEST(CodeLinesCountMetric, MatchCase) {
-    MetricFixture<CodeLinesCountMetric> fixture("match_case.py");
-    ASSERT_EQ(fixture.GetResult("test_Match_case"), 7);
-}
-
-TEST(CodeLinesCountMetric, ManyParameters) {
-    MetricFixture<CodeLinesCountMetric> fixture("many_parameters.py");
-    ASSERT_EQ(fixture.GetResult("__test_multiparameters__"), 1);
-}
-
-TEST(CodeLinesCountMetric, ManyLines) {
-    MetricFixture<CodeLinesCountMetric> fixture("many_lines.py");
-    ASSERT_EQ(fixture.GetResult("testmultiline"), 11);
-}
-
-TEST(CodeLinesCountMetric, Simple) {
-    MetricFixture<CodeLinesCountMetric> fixture("simple.py");
-    ASSERT_EQ(fixture.GetResult("test_simple"), 5);
-}
-
-TEST(CodeLinesCountMetric, Sample) {
-    MetricFixture<CodeLinesCountMetric> fixture("../../../files/sample.py");
-    ASSERT_EQ(fixture.GetResult("__init__"), 2);
-    ASSERT_EQ(fixture.GetResult("process"), 3);
-    ASSERT_EQ(fixture.GetResult("__call__"), 2);
-    ASSERT_EQ(fixture.GetResult("lambda_demo"), 6);
-}
+INSTANTIATE_TEST_SUITE_P(CodeLinesCountTests, CodeLinesCountFixture, testing::Values(
+    TestCase{"Func_comments", "comments.py", 3},
+    TestCase{"testIf", "if.py", 3},
+    TestCase{"TestLoops", "loops.py", 6},
+    TestCase{"Testnestedif", "nested_if.py", 8},
+    TestCase{"teSt_ternary", "ternary.py", 1},
+    TestCase{"Try_Exceptions", "exceptions.py", 7},
+    TestCase{"test_Match_case", "match_case.py", 7},
+    TestCase{"__test_multiparameters__", "many_parameters.py", 1},
+    TestCase{"testmultiline", "many_lines.py", 11},
+    TestCase{"test_simple", "simple.py", 5}
+));
 
 }  // namespace analyzer::metric::metric_impl

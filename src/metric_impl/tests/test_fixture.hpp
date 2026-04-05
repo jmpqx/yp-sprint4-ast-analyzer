@@ -2,18 +2,23 @@
 
 #include "metric_impl/metrics.hpp"
 
+#include <gtest/gtest.h>
 #include <string>
 #include <unordered_map>
 
 namespace analyzer::metric::metric_impl {
 
+using TestCase = std::tuple<std::string, std::string, std::variant<int, std::string>>;
+
 template <typename MetricType>
-class MetricFixture {
+class MetricFixture : public testing::TestWithParam<TestCase> {
 public:
     using FunctionNameMetricResult = std::pair<std::string, MetricResult>;
     using FixtureResults = std::unordered_map<std::string, MetricResult>;
 
-    MetricFixture(const std::string &filename) {
+    MetricFixture() = default;
+
+    void Init(const std::string &filename) {
         file::File test_file(filename);
         auto functions = function::FunctionExtractor{}.Get(test_file);
         auto metric = MetricType{};

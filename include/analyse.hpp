@@ -40,7 +40,7 @@ namespace rs = std::ranges;
  */
 inline auto AnalyzeFunctions(const std::vector<std::string> &files,
                              const analyzer::metric::MetricExtractor &metric_extractor) {
-    return rv::all(files) |
+    return files |
            rv::transform([](auto &&file_path) { return function::FunctionExtractor{}.Get(file::File(file_path)); }) |
            rv::join |
            rv::transform([&](auto &&function) { return std::make_pair(function, metric_extractor.Get(function)); }) |

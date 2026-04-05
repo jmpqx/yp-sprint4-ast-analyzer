@@ -47,12 +47,16 @@ MetricResult::ValueType CyclomaticComplexityMetric::CalculateImpl(const function
 
     int result = 1;
 
-    std::ranges::for_each(complexity_nodes, [&](std::string_view node_type) {
-        size_t pos = 0;
-        while ((pos = function_ast.find(node_type, pos)) != std::string::npos) {
-            pos += node_type.size();
-            ++result;
-        }
+    auto ast_lines = std::views::split(function_ast, '\n') | std::views::transform([](auto &&line) {
+        return std::string_view(line.data(), line.size());
+    });
+
+    std::ranges::for_each(ast_lines, [&](auto line){
+        std::ranges::for_each(complexity_nodes, [&](auto node_type) {
+            if (line.find(node_type) != std::string_view::npos) {
+                ++result;
+            }
+        });
     });
 
     return result;
