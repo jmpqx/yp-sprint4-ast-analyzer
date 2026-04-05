@@ -38,13 +38,17 @@ namespace rs = std::ranges;
  * 5. Для каждой функции вычисляет набор метрик через переданный `metric_extractor`.
  * 6. Возвращает вектор пар: (функция, результаты её метрик).
  */
-auto AnalyseFunctions(const std::vector<std::string> &files,
-                      const analyzer::metric::MetricExtractor &metric_extractor) {
-    // здесь ваш код
+inline auto AnalyzeFunctions(const std::vector<std::string> &files,
+                             const analyzer::metric::MetricExtractor &metric_extractor) {
+    return files |
+           rv::transform([](auto &&file_path) { return function::FunctionExtractor{}.Get(file::File(file_path)); }) |
+           rv::join |
+           rv::transform([&](auto &&function) { return std::make_pair(function, metric_extractor.Get(function)); }) |
+           rs::to<std::vector>();
 }
 
 /**
- * 
+ *
  * @brief Группирует результаты анализа по классам.
  *
  * Эта функция:
@@ -61,8 +65,16 @@ auto AnalyseFunctions(const std::vector<std::string> &files,
  *  Чтобы убедиться, что фильтрация работает, проверьте, что свободные функции (без class_name)
  * действительно исчезают из результата.
  */
-auto SplitByClasses(const auto &analysis) {
-    // здесь ваш код
+inline auto SplitByClasses(const auto &analysis) {
+    return rv::all(analysis) | rv::filter([](auto &&pair) {
+               auto &[function, metrics] = pair;
+               return function.class_name.has_value();
+           }) |
+           rv::chunk_by([](auto &&lhs, auto &&rhs) {
+               auto &[lhs_function, _] = lhs;
+               auto &[rhs_function, __] = rhs;
+               return lhs_function.class_name == rhs_function.class_name;
+           });
 }
 
 /**
@@ -73,8 +85,12 @@ auto SplitByClasses(const auto &analysis) {
  *   только функции из одного и того же файла (`filename`).
  * - Использует `chunk_by`, поэтому **порядок функций в `analysis` должен быть по файлам**.
  */
-auto SplitByFiles(const auto &analysis) {
-    // здесь ваш код
+inline auto SplitByFiles(const auto &analysis) {
+    return rv::all(analysis) | rv::chunk_by([](auto &&lhs, auto &&rhs) {
+               auto &[lhs_function, _] = lhs;
+               auto &[rhs_function, __] = rhs;
+               return lhs_function.filename == rhs_function.filename;
+           });
 }
 
 /**
@@ -87,7 +103,10 @@ auto SplitByFiles(const auto &analysis) {
  */
 void AccumulateFunctionAnalysis(const auto &analysis,
                                 const analyzer::metric_accumulator::MetricsAccumulator &accumulator) {
-    // здесь ваш код
+    rs::for_each(analysis, [&](auto &&pair) {
+        const auto &[function, metrics] = pair;
+        accumulator.AccumulateNextFunctionResults(metrics);
+    });
 }
 
 }  // namespace analyzer
